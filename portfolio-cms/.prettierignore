@@ -1,0 +1,10 @@
+.next
+node_modules
+drizzle/meta
+storage
+pnpm-lock.yaml
+playwright-report
+test-results
+storage-e2e
+backups
+tsconfig.tsbuildinfo

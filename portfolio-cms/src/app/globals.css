@@ -1,0 +1,465 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * Design tokens
+ * -------------
+ * Graphite near-black with a warm off-white, plus one restrained accent the
+ * owner picks in the dashboard (brass by default: KFUPM's gold, muted).
+ * Every text/background pair below meets WCAG AA (4.5:1) in both themes.
+ */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1113;
+  --surface: #16191c;
+  --surface-2: #1c2024;
+  --border: #272c31;
+  --border-strong: #3a4047;
+  --fg: #ece9e2;
+  --muted: #a3a8ae;
+  --subtle: #868c93;
+  --danger: #f08a7e;
+  --danger-soft: rgb(240 138 126 / 0.12);
+  --success: #8fd19e;
+  --success-soft: rgb(143 209 158 / 0.12);
+  --warning: #e9c46a;
+  --warning-soft: rgb(233 196 106 / 0.12);
+  --shadow-color: 0 0% 0%;
+  --glow-strength: 0.1;
+  --grain-strength: 0.05;
+
+  --accent: #d6b26e;
+  --accent-fg: #14120d;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f6f3;
+  --surface: #ffffff;
+  --surface-2: #eeeeea;
+  --border: #e0e0db;
+  --border-strong: #c9c9c2;
+  --fg: #16191c;
+  --muted: #50565d;
+  --subtle: #62686f;
+  --danger: #b4321f;
+  --danger-soft: rgb(180 50 31 / 0.08);
+  --success: #23733a;
+  --success-soft: rgb(35 115 58 / 0.08);
+  --warning: #8a5a00;
+  --warning-soft: rgb(138 90 0 / 0.08);
+  --shadow-color: 220 15% 20%;
+  --glow-strength: 0; /* a dark glow on a light page reads as a smudge */
+  --grain-strength: 0;
+
+  --accent: #7f5e12;
+  --accent-fg: #ffffff;
+}
+
+/* Accent options (Appearance settings). */
+[data-accent="gulf"] {
+  --accent: #6cc7bc;
+}
+[data-theme="light"][data-accent="gulf"] {
+  --accent: #1a6a61;
+}
+[data-accent="sage"] {
+  --accent: #a3c48f;
+}
+[data-theme="light"][data-accent="sage"] {
+  --accent: #3f6534;
+}
+[data-accent="cobalt"] {
+  --accent: #93aaf5;
+}
+[data-theme="light"][data-accent="cobalt"] {
+  --accent: #3049a8;
+}
+
+:root {
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 45%, transparent);
+  --ring: color-mix(in oklab, var(--accent) 70%, var(--fg));
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --header-h: 64px;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius-lg);
+
+  /* Type scale (classical 1.25 progression), sizes in rem. */
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1.4;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.55;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.65;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.5;
+  --text-xl: 1.5625rem;
+  --text-xl--line-height: 1.3;
+  --text-2xl: 1.953rem;
+  --text-2xl--line-height: 1.15;
+  --text-3xl: 2.441rem;
+  --text-3xl--line-height: 1.08;
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: calc(var(--header-h) + 16px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.65;
+    font-feature-settings: "kern", "liga", "calt";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Arabic needs more vertical room for ascenders, descenders and diacritics. */
+  :lang(ar) body,
+  body:lang(ar) {
+    line-height: 1.85;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  /* Tabular figures wherever numbers line up (dates, counts). */
+  time,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Display type: Instrument Sans at a condensed width, the site's signature. */
+  .display {
+    font-stretch: 78%;
+    font-weight: 620;
+    letter-spacing: -0.018em;
+    line-height: 0.98;
+  }
+  :lang(ar) .display,
+  .display:lang(ar) {
+    font-stretch: 100%;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.3;
+  }
+
+  .heading {
+    font-stretch: 86%;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  :lang(ar) .heading,
+  .heading:lang(ar) {
+    font-stretch: 100%;
+    letter-spacing: 0;
+  }
+
+  .measure {
+    max-width: 66ch;
+  }
+
+  /* Inline text link with an accent underline that thickens on hover. */
+  .link {
+    text-decoration-line: underline;
+    text-decoration-color: var(--accent-line);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    transition:
+      text-decoration-color 150ms,
+      text-decoration-thickness 150ms;
+  }
+  .link:hover {
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+  }
+
+  /* Long-form Markdown content. */
+  .prose-content {
+    color: var(--fg);
+    max-width: 68ch;
+  }
+  .prose-content > * + * {
+    margin-top: 0.9em;
+  }
+  .prose-content p {
+    color: color-mix(in oklab, var(--fg) 88%, var(--muted));
+  }
+  .prose-content h2,
+  .prose-content h3,
+  .prose-content h4 {
+    font-weight: 600;
+    font-stretch: 90%;
+    margin-top: 1.6em;
+    line-height: 1.3;
+  }
+  .prose-content h2 {
+    font-size: var(--text-lg);
+  }
+  .prose-content h3,
+  .prose-content h4 {
+    font-size: var(--text-base);
+  }
+  .prose-content ul,
+  .prose-content ol {
+    padding-inline-start: 1.25em;
+  }
+  .prose-content ul {
+    list-style: none;
+  }
+  .prose-content ul > li {
+    position: relative;
+  }
+  .prose-content ul > li::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -1em;
+    top: 0.78em;
+    width: 0.4em;
+    height: 1px;
+    background: var(--accent);
+  }
+  .prose-content ol {
+    list-style: decimal;
+  }
+  .prose-content li + li {
+    margin-top: 0.35em;
+  }
+  .prose-content li::marker {
+    color: var(--subtle);
+  }
+  .prose-content a {
+    text-decoration-line: underline;
+    text-decoration-color: var(--accent-line);
+    text-underline-offset: 0.22em;
+  }
+  .prose-content a:hover {
+    text-decoration-color: var(--accent);
+  }
+  .prose-content strong {
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .prose-content code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+  }
+  .prose-content pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    direction: ltr;
+    text-align: left;
+  }
+  .prose-content pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+  .prose-content blockquote {
+    border-inline-start: 2px solid var(--accent);
+    padding-inline-start: 1rem;
+    color: var(--muted);
+  }
+  .prose-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  .prose-content th,
+  .prose-content td {
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0.75rem 0.5rem 0;
+    text-align: start;
+  }
+  .prose-content hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Drafting crop marks around the portrait: the page's one load animation. */
+  .crop-marks::before {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    pointer-events: none;
+    --mark: var(--accent);
+    --len: 18px;
+    --weight: 1.5px;
+    background:
+      linear-gradient(var(--mark), var(--mark)) top left / var(--len) var(--weight),
+      linear-gradient(var(--mark), var(--mark)) top left / var(--weight) var(--len),
+      linear-gradient(var(--mark), var(--mark)) top right / var(--len) var(--weight),
+      linear-gradient(var(--mark), var(--mark)) top right / var(--weight) var(--len),
+      linear-gradient(var(--mark), var(--mark)) bottom left / var(--len) var(--weight),
+      linear-gradient(var(--mark), var(--mark)) bottom left / var(--weight) var(--len),
+      linear-gradient(var(--mark), var(--mark)) bottom right / var(--len) var(--weight),
+      linear-gradient(var(--mark), var(--mark)) bottom right / var(--weight) var(--len);
+    background-repeat: no-repeat;
+    animation: crop-in 800ms var(--ease-out-quart) 100ms both;
+  }
+  /* Small, static version used as the dashboard logo mark. */
+  .crop-marks-sm::before {
+    inset: -3px;
+    --len: 5px;
+    --weight: 1.5px;
+    animation: none;
+  }
+  .title-block-row {
+    animation: row-in 500ms var(--ease-out-quart) both;
+  }
+
+  /*
+   * Fine grain over the hero glow. A very faint gradient only has a handful of
+   * 8-bit colour steps to work with and shows visible rings; dithering with
+   * noise hides them. Masked to the glow so the rest of the page stays clean.
+   */
+  .hero-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: var(--grain-strength);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    mask-image: radial-gradient(56rem 38rem at 22% 4%, #000 0%, transparent 72%);
+  }
+
+  /* Surfaces */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 1px 0 0 hsl(var(--shadow-color) / 0.04),
+      0 12px 32px -18px hsl(var(--shadow-color) / 0.45);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+@keyframes crop-in {
+  from {
+    inset: -24px;
+    opacity: 0;
+  }
+  to {
+    inset: -10px;
+    opacity: 1;
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Respect reduced-motion preferences everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
